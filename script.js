@@ -1,47 +1,32 @@
 function calculateSize() {
   const D = parseFloat(document.getElementById("distanceObject").value);
   const H = parseFloat(document.getElementById("objectHeight").value);
+  const A = parseFloat(document.getElementById("angularSize").value);
   const L = parseFloat(document.getElementById("pinholeDistance").value);
 
   const result = document.getElementById("result");
 
-  if (isNaN(D) || isNaN(H) || isNaN(L) || D <= 0 || H <= 0 || L <= 0) {
-    result.innerHTML = "Please enter valid positive numbers.";
+  if (isNaN(L) || L <= 0) {
+    result.innerHTML = "Please enter a valid screen distance (L).";
     return;
   }
 
-  const h = (H * L / D).toFixed(3);
-  result.innerHTML = `Projected Image Size: ${h} meters`;
+  let h = null;
 
-  drawDiagram(D, H, L, h);
-}
+  if (!isNaN(H) && !isNaN(D) && H > 0 && D > 0) {
+    // Use object height and distance
+    h = (H * L) / D;
+  } else if (!isNaN(A) && A > 0) {
+    // Use angular size in degrees
+    const radians = A * Math.PI / 180;
+    h = L * Math.tan(radians);
+  } else {
+    result.innerHTML = "Please enter object height and distance, or angular size.";
+    return;
+  }
 
-function drawDiagram(D, H, L, h) {
-  const canvas = document.getElementById("diagram");
-  const ctx = canvas.getContext("2d");
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const hMM = h * 1000;
+  result.innerHTML = `Projected Image Size: ${hMM.toFixed(1)} mm`;
 
-  const scale = 100;
-
-  // Draw object (left side)
-  ctx.fillStyle = "white";
-  ctx.fillRect(50, canvas.height / 2 - H * scale / 2, 5, H * scale);
-
-  // Draw image (right side, upside down)
-  ctx.fillStyle = "lime";
-  ctx.fillRect(300, canvas.height / 2 + h * scale / 2, 5, -h * scale);
-
-  // Draw pinhole (center)
-  ctx.beginPath();
-  ctx.arc(175, canvas.height / 2, 5, 0, 2 * Math.PI);
-  ctx.fillStyle = "red";
-  ctx.fill();
-
-  // Connect lines
-  ctx.strokeStyle = "yellow";
-  ctx.beginPath();
-  ctx.moveTo(50, canvas.height / 2 - H * scale / 2);
-  ctx.lineTo(175, canvas.height / 2);
-  ctx.lineTo(300, canvas.height / 2 + h * scale / 2);
-  ctx.stroke();
+  drawDiagram(D, H || 1, L, h); // fallback height if only angle is given
 }
