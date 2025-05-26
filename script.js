@@ -1,64 +1,84 @@
+
 function calculateSize() {
   const D = parseFloat(document.getElementById("distanceObject").value);
   const H = parseFloat(document.getElementById("objectHeight").value);
   const A = parseFloat(document.getElementById("angularSize").value);
   const L = parseFloat(document.getElementById("pinholeDistance").value);
+  const d_input = parseFloat(document.getElementById("pinholeDiameter").value);
 
   const result = document.getElementById("result");
+  result.innerHTML = "";
 
   if (isNaN(L) || L <= 0) {
-    result.innerHTML = "Please enter a valid screen distance (L).";
+    result.innerHTML = "❗ Please enter a valid pinhole-to-screen distance (L).";
     return;
   }
 
-  let hMeters = null;
+  let h = null;
+  let label = "";
 
   if (!isNaN(H) && !isNaN(D) && H > 0 && D > 0) {
-    hMeters = H * L / D;
+    h = (H * L) / D;
+    label = `Using object height H = ${H} m and distance D = ${D} m`;
   } else if (!isNaN(A) && A > 0) {
     const radians = A * Math.PI / 180;
-    hMeters = L * Math.tan(radians);
+    h = L * Math.tan(radians);
+    label = `Using angular size = ${A}°`;
   } else {
-    result.innerHTML = "Please enter object height and distance, or angular size.";
+    result.innerHTML = "❗ Please enter either: (1) object height and distance OR (2) angular size.";
     return;
   }
 
-  const hMM = (hMeters * 1000).toFixed(1);
-  result.innerHTML = `Projected Image Size: ${hMM} mm`;
+  const hMM = h * 1000;
+  result.innerHTML = `📏 Projected Image Size: <strong>${hMM.toFixed(1)} mm</strong><br/><small>${label}</small>`;
 
-  drawDiagram(D, H || null, L, hMeters);
+  // Diffraction check
+  const lambda = 5.5e-7; // 550 nm (green light)
+  const d_optimal = 1.9 * Math.sqrt(lambda * L);
+  let diffractionWarning = "";
+
+  if (!isNaN(d_input) && d_input > 0) {
+    const d = d_input / 1000;
+    if (d < 0.5 * d_optimal) {
+      diffractionWarning = "<br/><span style='color:red;'>⚠️ Diffraction likely affects image sharpness (pinhole too small).</span>";
+    } else if (d > 2 * d_optimal) {
+      diffractionWarning = "<br/><span style='color:orange;'>⚠️ Image may be blurred from geometric effects (pinhole too large).</span>";
+    } else {
+      diffractionWarning = "<br/><span style='color:green;'>✅ Pinhole size is near optimal for sharpness.</span>";
+    }
+  }
+
+  result.innerHTML += diffractionWarning;
+  drawDiagram(L, h);
 }
 
-function drawDiagram(D, H, L, h) {
+function drawDiagram(L, h) {
   const canvas = document.getElementById("diagram");
   const ctx = canvas.getContext("2d");
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  const scale = 100;
+  const scale = 1000;
+  const centerX = 50;
+  const screenX = centerX + L * scale;
+  const imageHeight = h * scale;
 
-  // Object on the left
-  if (H) {
-    ctx.fillStyle = "white";
-    ctx.fillRect(50, canvas.height / 2 - H * scale / 2, 5, H * scale);
-  }
-
-  // Image on the right (inverted)
-  ctx.fillStyle = "lime";
-  ctx.fillRect(300, canvas.height / 2 + h * scale / 2, 5, -h * scale);
-
-  // Pinhole in the center
   ctx.beginPath();
-  ctx.arc(175, canvas.height / 2, 5, 0, 2 * Math.PI);
-  ctx.fillStyle = "red";
-  ctx.fill();
-
-  // Draw light rays
-  ctx.strokeStyle = "yellow";
-  ctx.beginPath();
-  if (H) {
-    ctx.moveTo(50, canvas.height / 2 - H * scale / 2);
-    ctx.lineTo(175, canvas.height / 2);
-  }
-  ctx.lineTo(300, canvas.height / 2 + h * scale / 2);
+  ctx.moveTo(centerX, canvas.height / 2 - imageHeight / 2);
+  ctx.lineTo(screenX, canvas.height / 2);
+  ctx.lineTo(centerX, canvas.height / 2 + imageHeight / 2);
+  ctx.strokeStyle = "#007acc";
+  ctx.lineWidth = 2;
   ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(screenX, canvas.height / 2 - imageHeight / 2);
+  ctx.lineTo(screenX, canvas.height / 2 + imageHeight / 2);
+  ctx.strokeStyle = "#999";
+  ctx.setLineDash([5, 3]);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  ctx.fillStyle = "#000";
+  ctx.font = "12px sans-serif";
+  ctx.fillText("Screen", screenX + 5, canvas.height / 2);
 }
