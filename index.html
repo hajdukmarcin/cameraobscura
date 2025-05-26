@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Camera Obscura Size Calculator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Camera Obscura Image Size Calculator</h1>
+    <p>Calculate the size of an image projected in a pinhole camera setup.</p>
+
+    <label>Distance to Object (D) [m]</label>
+    <input type="number" id="distanceObject" step="0.01" placeholder="e.g. 5" />
+
+    <label>Object Height (H) [m]</label>
+    <input type="number" id="objectHeight" step="0.01" placeholder="e.g. 1.8" />
+
+    <label>Distance from Pinhole to Screen (L) [m]</label>
+    <input type="number" id="pinholeDistance" step="0.01" placeholder="e.g. 0.5" />
+
+    <button onclick="calculateSize()">Calculate Image Size</button>
+
+    <div id="result"></div>
+    <canvas id="diagram" width="400" height="200"></canvas>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
