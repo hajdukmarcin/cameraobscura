@@ -6,8 +6,8 @@ Jest to nardzędzie do obliczania parametrów do przygotowania eksperymentu z [c
 
 Kalkulator liczy wielkość obrazu dla zadanej wielkości przedmiotu i odległości apertury od ekranu oraz sprawdza, kiedy stają się istotne efekty dyfrakcyjne.
 
-Jeśli nie używamy materiału światłoczułego to robimy drugi otwór, przez który możemy obserwowować obraz powstający na ekranie lub przez który możemy zrobić zdjęcie obrazu komórką.
+Jeśli nie używamy materiału światłoczułego to robimy drugi otwór, przez który możemy obserwowować obraz powstający na ekranie lub przez który możemy zrobić zdjęcie obrazu telefonem komórkowym.
 
 Kształt apertury - nie ma wielkiego znaczenia, dopóki będzie w miarę reguralny (najlepiej apertura okrągła).
 
-![slonce](https://github.com/user-attachments/assets/11c34e05-4a89-4aba-b949-b4c2a4b3e279)
+![slonce](https://github.com/user-attachments/assets/80c6689c-5144-4336-b987-511a546cfc1d)
