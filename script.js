@@ -1,108 +1,86 @@
-
 function calculateSize() {
-  const D = parseFloat(document.getElementById("distanceObject").value);
-  const H = parseFloat(document.getElementById("objectHeight").value);
-  const A = parseFloat(document.getElementById("angularSize").value);
-  const L = parseFloat(document.getElementById("pinholeDistance").value);
-  const d_input = parseFloat(document.getElementById("pinholeDiameter").value);
+  const D = parseFloat(document.getElementById('distanceObject').value); // object distance
+  const H = parseFloat(document.getElementById('objectHeight').value);   // object height
+  const thetaDeg = parseFloat(document.getElementById('angularSize').value); // angular size
+  const L = parseFloat(document.getElementById('pinholeDistance').value);   // pinhole to screen
+  const d_mm = parseFloat(document.getElementById('pinholeDiameter').value); // pinhole diameter in mm
 
-  const result = document.getElementById("result");
-  result.innerHTML = "";
+  const resultDiv = document.getElementById('result');
+  resultDiv.innerHTML = '';
 
-  if (isNaN(L) || L <= 0) {
-    result.innerHTML = "❗ Please enter a valid pinhole-to-screen distance (L).";
+  if (isNaN(L) || isNaN(d_mm)) {
+    resultDiv.innerHTML = 'Wprowadź wartości dla odległości od ekranu i średnicy otworka.';
     return;
   }
 
-  let h = null;
-  let label = "";
+  const d = d_mm / 1000; // convert mm to meters
+  const lambda = 550e-9; // green light wavelength
 
-  if (!isNaN(H) && !isNaN(D) && H > 0 && D > 0) {
-    h = (H * L) / D;
-    label = `Using object height H = ${H} m and distance D = ${D} m`;
-  } else if (!isNaN(A) && A > 0) {
-    const radians = A * Math.PI / 180;
-    h = L * Math.tan(radians);
-    label = `Using angular size = ${A}°`;
+  let imageHeight = 0;
+  let angularUsed = false;
+
+  if (!isNaN(H) && !isNaN(D)) {
+    imageHeight = (H * L) / D;
+  } else if (!isNaN(thetaDeg)) {
+    const thetaRad = (thetaDeg * Math.PI) / 180;
+    imageHeight = 2 * L * Math.tan(thetaRad / 2);
+    angularUsed = true;
   } else {
-    result.innerHTML = "❗ Please enter either: (1) object height and distance OR (2) angular size.";
+    resultDiv.innerHTML = 'Wprowadź wysokość obiektu i odległość, lub kąt widzenia.';
     return;
   }
 
-  const hMM = h * 1000;
-  result.innerHTML = `📏 Projected Image Size: <strong>${hMM.toFixed(1)} mm</strong><br/><small>${label}</small>`;
+  const diffractionAngle = 1.22 * (lambda / d);
+  const diffractionSpot = L * diffractionAngle;
 
-  const lambda = 5.5e-7;
-  const d_optimal = 1.9 * Math.sqrt(lambda * L);
-  let diffractionWarning = "";
-  let diffractionSizeMM = null;
+  resultDiv.innerHTML = `
+    <strong>Wyniki:</strong><br />
+    Wysokość obrazu: <strong>${(imageHeight * 100).toFixed(2)} cm</strong><br />
+    Ograniczenie rozdzielczości przez dyfrakcję: <strong>${(diffractionSpot * 1000).toFixed(2)} mm</strong><br />
+    (Najmniejszy rozróżnialny szczegół na ekranie)
+  `;
 
-  if (!isNaN(d_input) && d_input > 0) {
-    const d = d_input / 1000;
-    const diffractionBlur = 2.44 * lambda * L / d;
-    diffractionSizeMM = diffractionBlur * 1000;
-
-    if (d < 0.5 * d_optimal) {
-      diffractionWarning = `<br/><span style="color:red;">⚠️ Diffraction likely affects image sharpness.<br/>Diffraction blur ≈ ${diffractionSizeMM.toFixed(2)} mm</span>`;
-    } else if (d > 2 * d_optimal) {
-      diffractionWarning = `<br/><span style="color:orange;">⚠️ Image may be blurred from geometric effects.<br/>Diffraction blur ≈ ${diffractionSizeMM.toFixed(2)} mm</span>`;
-    } else {
-      diffractionWarning = `<br/><span style="color:green;">✅ Pinhole size near optimal.<br/>Diffraction blur ≈ ${diffractionSizeMM.toFixed(2)} mm</span>`;
-    }
-  }
-
-  result.innerHTML += diffractionWarning;
-  drawDiagram(L, h, diffractionSizeMM);
+  drawDiagram(D, H, thetaDeg, L, imageHeight, angularUsed);
 }
 
-function drawDiagram(L, h, diffractionSizeMM) {
-  const canvas = document.getElementById("diagram");
-  const ctx = canvas.getContext("2d");
+function drawDiagram(D, H, thetaDeg, L, imageHeight, angularUsed) {
+  const canvas = document.getElementById('diagram');
+  const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  const scale = 1000;
-  const centerX = 50;
-  const screenX = centerX + L * scale;
-  const imgH = h * scale;
-
-  ctx.fillStyle = "black";
-  ctx.fillRect(centerX - 5, canvas.height / 2 - imgH / 2, 5, imgH);
-  ctx.fillText("Object", centerX - 35, canvas.height / 2);
+  const cx = canvas.width / 2;
+  const cy = canvas.height - 40;
+  const scale = 100;
 
   ctx.beginPath();
-  ctx.moveTo(centerX, canvas.height / 2 - imgH / 2);
-  ctx.lineTo(screenX, canvas.height / 2);
-  ctx.lineTo(centerX, canvas.height / 2 + imgH / 2);
-  ctx.strokeStyle = "#007acc";
-  ctx.lineWidth = 2;
+  ctx.moveTo(cx, cy);
+  ctx.lineTo(cx, cy - L * scale);
+  ctx.strokeStyle = '#000';
   ctx.stroke();
 
   ctx.beginPath();
-  ctx.moveTo(screenX, canvas.height / 2 - imgH / 2 - 10);
-  ctx.lineTo(screenX, canvas.height / 2 + imgH / 2 + 10);
-  ctx.strokeStyle = "#666";
-  ctx.setLineDash([4, 3]);
+  ctx.arc(cx, cy, 4, 0, 2 * Math.PI);
+  ctx.fillStyle = 'black';
+  ctx.fill();
+  ctx.fillText('Pinhole', cx + 6, cy);
+
+  const screenY = cy - L * scale;
+  const imageHalf = (imageHeight * scale) / 2;
+  ctx.beginPath();
+  ctx.moveTo(cx - imageHalf, screenY);
+  ctx.lineTo(cx + imageHalf, screenY);
+  ctx.strokeStyle = 'blue';
+  ctx.stroke();
+  ctx.fillText('Obraz', cx + imageHalf + 6, screenY + 4);
+
+  // Rays
+  ctx.beginPath();
+  ctx.moveTo(cx, cy);
+  ctx.lineTo(cx - imageHalf, screenY);
+  ctx.moveTo(cx, cy);
+  ctx.lineTo(cx + imageHalf, screenY);
+  ctx.strokeStyle = 'gray';
+  ctx.setLineDash([5, 3]);
   ctx.stroke();
   ctx.setLineDash([]);
-
-  ctx.fillStyle = "black";
-  ctx.fillText("Screen", screenX + 10, canvas.height / 2);
-
-  ctx.fillStyle = "rgba(0,0,0,0.2)";
-  ctx.fillRect(screenX, canvas.height / 2 - imgH / 2, 5, imgH);
-
-  if (diffractionSizeMM) {
-    const blurH = (diffractionSizeMM / 1000) * scale;
-    ctx.beginPath();
-    ctx.ellipse(screenX + 15, canvas.height / 2, 0.5 * blurH, 0.5 * blurH, 0, 0, 2 * Math.PI);
-    ctx.strokeStyle = "red";
-    ctx.stroke();
-    ctx.fillText("Diffraction blur", screenX + 25, canvas.height / 2 + 4);
-  }
-
-  ctx.fillStyle = "#000";
-  ctx.beginPath();
-  ctx.arc(centerX, canvas.height / 2, 3, 0, 2 * Math.PI);
-  ctx.fill();
-  ctx.fillText("Pinhole", centerX - 15, canvas.height / 2 + 15);
 }
