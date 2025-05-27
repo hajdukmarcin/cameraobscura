@@ -9,7 +9,7 @@ function calculateSize() {
   resultDiv.innerHTML = '';
 
   if (isNaN(L) || isNaN(d_mm)) {
-    resultDiv.innerHTML = 'Wprowadź wartości dla odległości od ekranu i średnicy otworka.';
+    resultDiv.innerHTML = 'Wprowadź wartości dla odległości od ekranu i średnicy apertury.';
     return;
   }
 
