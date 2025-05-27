@@ -30,20 +30,28 @@ function calculateSize() {
     return;
   }
 
+  // Ograniczenie dyfrakcyjne
   const diffractionAngle = 1.22 * (lambda / d);
   const diffractionSpot = L * diffractionAngle;
+
+  // Ograniczenie geometryczne (rozmiar apertury)
+  let geometricalSpot = NaN;
+  if (!angularUsed && !isNaN(D) && D !== 0) {
+    geometricalSpot = d * (L / D);  // metry
+  }
 
   resultDiv.innerHTML = `
     <strong>Wyniki:</strong><br />
     Wysokość obrazu: <strong>${(imageHeight * 100).toFixed(2)} cm</strong><br />
     Ograniczenie rozdzielczości przez dyfrakcję: <strong>${(diffractionSpot * 1000).toFixed(2)} mm</strong><br />
-    (Najmniejszy rozróżnialny szczegół na ekranie)
+    (Najmniejszy rozróżnialny szczegół na ekranie)<br />
+    ${!isNaN(geometricalSpot) ? `Ograniczenie geometryczne (rozmycie apertury): <strong>${(geometricalSpot * 1000).toFixed(2)} mm</strong><br />` : ''}
   `;
 
-  drawDiagram(D, H, thetaDeg, L, imageHeight, angularUsed);
+  drawDiagram(D, H, thetaDeg, L, imageHeight, angularUsed, diffractionSpot, geometricalSpot);
 }
 
-function drawDiagram(D, H, thetaDeg, L, imageHeight, angularUsed) {
+function drawDiagram(D, H, thetaDeg, L, imageHeight, angularUsed, diffractionSpot, geometricalSpot) {
   const canvas = document.getElementById('diagram');
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -52,6 +60,7 @@ function drawDiagram(D, H, thetaDeg, L, imageHeight, angularUsed) {
   const cy = canvas.height - 40;
   const scale = 100;
 
+  // Linia apertury (pinhole)
   ctx.beginPath();
   ctx.moveTo(cx, cy);
   ctx.lineTo(cx, cy - L * scale);
@@ -64,6 +73,7 @@ function drawDiagram(D, H, thetaDeg, L, imageHeight, angularUsed) {
   ctx.fill();
   ctx.fillText('Pinhole', cx + 6, cy);
 
+  // Ekran (obraz)
   const screenY = cy - L * scale;
   const imageHalf = (imageHeight * scale) / 2;
   ctx.beginPath();
@@ -73,7 +83,7 @@ function drawDiagram(D, H, thetaDeg, L, imageHeight, angularUsed) {
   ctx.stroke();
   ctx.fillText('Obraz', cx + imageHalf + 6, screenY + 4);
 
-  // Rays
+  // Promienie od pinhole do obrazu
   ctx.beginPath();
   ctx.moveTo(cx, cy);
   ctx.lineTo(cx - imageHalf, screenY);
@@ -83,4 +93,35 @@ function drawDiagram(D, H, thetaDeg, L, imageHeight, angularUsed) {
   ctx.setLineDash([5, 3]);
   ctx.stroke();
   ctx.setLineDash([]);
+
+  // Pokazanie ograniczeń rozdzielczości na ekranie
+  // Skala na mm (1 px ~ 1 mm na ekranie)
+  const diffractionPx = diffractionSpot * 1000; // w mm
+  const geomPx = geometricalSpot * 1000; // w mm
+
+  // Linie ograniczenia dyfrakcyjnego
+  ctx.beginPath();
+  ctx.strokeStyle = 'red';
+  ctx.lineWidth = 2;
+  ctx.moveTo(cx + imageHalf + 20, screenY - diffractionPx / 2);
+  ctx.lineTo(cx + imageHalf + 20, screenY + diffractionPx / 2);
+  ctx.stroke();
+  ctx.fillStyle = 'red';
+  ctx.fillText('Dyfrakcja', cx + imageHalf + 25, screenY);
+
+  // Linie ograniczenia geometrycznego, jeśli dostępne
+  if (!isNaN(geomPx)) {
+    ctx.beginPath();
+    ctx.strokeStyle = 'green';
+    ctx.lineWidth = 2;
+    ctx.moveTo(cx + imageHalf + 40, screenY - geomPx / 2);
+    ctx.lineTo(cx + imageHalf + 40, screenY + geomPx / 2);
+    ctx.stroke();
+    ctx.fillStyle = 'green';
+    ctx.fillText('Geometryczne', cx + imageHalf + 45, screenY);
+  }
+
+  // Reset lineWidth and fillStyle
+  ctx.lineWidth = 1;
+  ctx.fillStyle = 'black';
 }
