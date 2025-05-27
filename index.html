@@ -1,33 +1,32 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
 <head>
   <meta charset="UTF-8">
-  <title>Camera Obscura Calculator</title>
+  <title>Kalkulator Camera Obscura</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="container">
-    <h1>Camera Obscura Image Size Calculator</h1>
-    <p>Calculate projected image size from object dimensions or angular size. Includes diffraction check.</p>
+    <h1>Kalkulator Rozmiaru Obrazu w Camera Obscura</h1>
+    <p>Oblicz rozmiar rzutowanego obrazu na podstawie wymiarów obiektu lub kąta. Uwzględnia dyfrakcję.</p>
 
-    <label>Distance from Object (D) [m]</label>
-    <input type="number" id="distanceObject" step="0.01" placeholder="e.g. 5" />
+    <label>Odległość od obiektu (D) [m]</label>
+    <input type="number" id="distanceObject" step="0.01" placeholder="np. 5" />
 
-    <label>Object Height (H) [m] (leave blank if using angle)</label>
-    <input type="number" id="objectHeight" step="0.01" placeholder="e.g. 1.8" />
+    <label>Wysokość obiektu (H) [m] (pozostaw puste, jeśli używasz kąta)</label>
+    <input type="number" id="objectHeight" step="0.01" placeholder="np. 1.8" />
 
-    <label>OR Angular Size [degrees] (leave blank if using height)</label>
-    <input type="number" id="angularSize" step="0.01" placeholder="e.g. 0.5" />
+    <label>LUB Kąt widzenia [stopnie] (pozostaw puste, jeśli używasz wysokości)</label>
+    <input type="number" id="angularSize" step="0.01" placeholder="np. 0.5" />
 
-    <label>Distance from Pinhole to Screen (L) [m]</label>
-    <input type="number" id="pinholeDistance" step="0.01" placeholder="e.g. 0.5" />
+    <label>Odległość od otworka do ekranu (L) [m]</label>
+    <input type="number" id="pinholeDistance" step="0.01" placeholder="np. 0.5" />
 
-    <label>Pinhole Diameter [mm]</label>
-    <input type="number" id="pinholeDiameter" step="0.01" placeholder="e.g. 0.3" />
+    <label>Średnica otworka [mm]</label>
+    <input type="number" id="pinholeDiameter" step="0.01" placeholder="np. 0.3" />
 
-    <button onclick="calculateSize()">Calculate Image Size</button>
+    <button onclick="calculateSize()">Oblicz Rozmiar Obrazu</button>
 
     <div id="result"></div>
     <canvas id="diagram" width="500" height="300" style="border:1px solid #ccc; margin-top:20px;"></canvas>
