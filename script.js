@@ -42,9 +42,8 @@ function calculateSize() {
 
   resultDiv.innerHTML = `
     <strong>Wyniki:</strong><br />
-    Wysokość obrazu: <strong>${(imageHeight * 100).toFixed(2)} cm</strong><br />
+    Wielkość obrazu (S): <strong>${(imageHeight * 100).toFixed(2)} cm</strong><br />
     Ograniczenie rozdzielczości przez dyfrakcję: <strong>${(diffractionSpot * 1000).toFixed(2)} mm</strong><br />
-    (Najmniejszy rozróżnialny szczegół na ekranie)<br />
     ${!isNaN(geometricalSpot) ? `Ograniczenie geometryczne (rozmycie apertury): <strong>${(geometricalSpot * 1000).toFixed(2)} mm</strong><br />` : ''}
   `;
 
