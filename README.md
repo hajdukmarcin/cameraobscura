@@ -12,7 +12,7 @@ Jeśli nie używamy materiału światłoczułego to robimy drugi otwór, przez k
 Kształt apertury - nie ma wielkiego znaczenia, dopóki będzie w miarę reguralny (najlepiej apertura okrągła).
 
 **Przykładowe eksperymenty:**
-- ["Obserwacje Słońca"](https://www.youtube.com/shorts/Jel8BWNHtJs)
+- [Obserwacje Słońca](https://www.youtube.com/shorts/Jel8BWNHtJs)
 - Obserwacje obrazu żarówki w pomieszczeniu
 - Demonstracja efektów falowych (najlepiej przy użyciu światła laserowego)
 - Zmiana ostrości obrazu wraz z rozmiarami apertury, jeśli tak skonstruujemy camerę obscura aby można było zastosować różne szczeliny
